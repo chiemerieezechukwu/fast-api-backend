@@ -1,4 +1,5 @@
 from sqlalchemy import Boolean, Column, String
+
 from app.db.config import BaseModelOrm
 from app.db.models.common import DateTimeModelMixin, IDModelMixin
 

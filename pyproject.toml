@@ -4,13 +4,13 @@ target-version = ['py38']
 include = '\.pyi?$'
 exclude = '''
   /(
-      \.eggs
+    | \.eggs
     | \.git
     | \.hg
     | \.mypy_cache
     | \.tox
-    | \.venv
     | _build
+    | venv
     | buck-out
     | build
     | dist

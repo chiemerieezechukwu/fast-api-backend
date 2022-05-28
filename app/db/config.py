@@ -1,8 +1,6 @@
-from sqlalchemy.orm import declarative_base, DeclarativeMeta
-
 from sqlalchemy import text
-
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from sqlalchemy.orm import DeclarativeMeta, declarative_base
 
 Base: DeclarativeMeta = declarative_base()
 

@@ -1,7 +1,8 @@
-from sqlalchemy import Column, DateTime
-from sqlalchemy.sql import func
-from sqlalchemy.dialects.postgresql import UUID
 import uuid
+
+from sqlalchemy import Column, DateTime
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.sql import func
 
 
 class DateTimeModelMixin:

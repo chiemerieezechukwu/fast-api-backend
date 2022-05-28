@@ -1,6 +1,8 @@
 from typing import Optional
-from app.schemas.rwschema import RWSchema
+
 from pydantic import EmailStr, HttpUrl
+
+from app.schemas.rwschema import RWSchema
 
 
 class UserInLogin(RWSchema):

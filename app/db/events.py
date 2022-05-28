@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from loguru import logger
+
 from app.core.settings.app import AppSettings
 from app.db.config import get_db
 

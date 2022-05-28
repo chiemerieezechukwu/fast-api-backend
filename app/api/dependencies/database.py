@@ -1,10 +1,11 @@
 from typing import AsyncGenerator, Callable, Type
+
 from fastapi import Depends
-from starlette.requests import Request
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.db.repositories.base import BaseRepository
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.asyncio import AsyncEngine
+from starlette.requests import Request
+
+from app.db.repositories.base import BaseRepository
 
 
 def _create_session(

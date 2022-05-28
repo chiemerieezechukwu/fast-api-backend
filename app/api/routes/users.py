@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Body, Depends
 from starlette.status import HTTP_201_CREATED
-from app.schemas.users import UserInCreate, UserInResponse
-from app.db.repositories.users import UsersRepository
+
 from app.api.dependencies.database import get_repository
 from app.core.config import get_app_settings
 from app.core.settings.app import AppSettings
+from app.db.repositories.users import UsersRepository
+from app.schemas.users import UserInCreate, UserInResponse
 
 router = APIRouter()
 
