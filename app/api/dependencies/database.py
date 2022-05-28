@@ -1,4 +1,3 @@
-from functools import lru_cache
 from typing import AsyncGenerator, Callable, Type
 
 from fastapi import Depends
@@ -9,7 +8,6 @@ from starlette.requests import Request
 from app.db.repositories.base import BaseRepository
 
 
-@lru_cache
 def _create_session(
     engine: AsyncEngine,
 ) -> AsyncSession:
