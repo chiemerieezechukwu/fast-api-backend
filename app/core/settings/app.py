@@ -1,11 +1,11 @@
 import logging
 import sys
-from app.core.settings.base import BaseAppSettings
-from pydantic import PostgresDsn, SecretStr
 
 from loguru import logger
+from pydantic import PostgresDsn, SecretStr
 
 from app.core.logging import InterceptHandler
+from app.core.settings.base import BaseAppSettings
 
 
 class AppSettings(BaseAppSettings):
