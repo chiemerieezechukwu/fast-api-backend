@@ -9,7 +9,6 @@ from app.db.repositories.base import BaseRepository
 
 
 def _create_session(
-
     engine: AsyncEngine,
 ) -> AsyncSession:
     AsyncSessionLocal = sessionmaker(
