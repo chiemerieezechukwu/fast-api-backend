@@ -8,7 +8,7 @@ from app.db.config import get_db
 async def connect_to_db(app: FastAPI, settings: AppSettings) -> None:
     logger.info("Checking PostgreSQL connection")
 
-    app.state.db = await get_db(settings.database_url)
+    app.state.db = await get_db(settings)
 
     logger.info("PostgreSQL is connectable")
 
