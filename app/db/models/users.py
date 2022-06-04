@@ -10,11 +10,7 @@ class User(BaseModelOrm, DateTimeModelMixin, IDModelMixin):
     full_name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True)
     username = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
     is_active = Column(Boolean, default=False)
 
-    def check_password(self, password: str) -> bool:
-        pass
-
-    def set_password(self, password: str) -> None:
-        pass
+    def __repr__(self) -> str:
+        return f"<User {self.email}>"

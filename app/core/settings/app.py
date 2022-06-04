@@ -5,7 +5,7 @@ from loguru import logger
 from pydantic import PostgresDsn, SecretStr
 
 from app.core.logging import InterceptHandler
-from app.core.settings.base import BaseAppSettings
+from app.core.settings.base import BaseAppSettings, UserpoolSettings
 
 
 class AppSettings(BaseAppSettings):
@@ -24,6 +24,7 @@ class AppSettings(BaseAppSettings):
     api_prefix: str = "/api"
 
     token_prefix: str = "Bearer"
+    userpool: UserpoolSettings
 
     allowed_hosts: list[str]
 
@@ -32,6 +33,7 @@ class AppSettings(BaseAppSettings):
 
     class Config:
         validate_assignment = True
+        env_nested_delimiter = "__"
 
     @property
     def fastapi_kwargs(self):
