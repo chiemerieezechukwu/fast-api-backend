@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.selectable import Select
 
-from app.db.config import BaseModelOrm
+from app.db.models import BaseModelOrm
 
 
 class BaseRepository:
