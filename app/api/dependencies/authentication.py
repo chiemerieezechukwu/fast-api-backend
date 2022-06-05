@@ -26,6 +26,7 @@ def _get_jwks() -> JWKS:
         response = f.read()
         keys = json.loads(response.decode("utf-8"))
 
+    logger.debug("Successfully retrieved JWKS")
     return JWKS(**keys)
 
 
