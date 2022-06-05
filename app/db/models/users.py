@@ -1,10 +1,10 @@
 from sqlalchemy import Boolean, Column, String
 
-from app.db.config import BaseModelOrm
-from app.db.models.common import DateTimeModelMixin, IDModelMixin
+from app.db.models import BaseModelOrm
+from app.db.models.common import DateTimeModelMixin
 
 
-class User(BaseModelOrm, DateTimeModelMixin, IDModelMixin):
+class User(BaseModelOrm, DateTimeModelMixin):
     __tablename__ = "users"
 
     full_name = Column(String, nullable=False)
