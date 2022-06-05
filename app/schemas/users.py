@@ -7,7 +7,6 @@ from app.schemas.rwschema import RWSchema
 
 class UserInLogin(RWSchema):
     email: EmailStr
-    password: str
 
 
 class UserInCreate(UserInLogin):

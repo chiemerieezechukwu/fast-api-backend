@@ -70,7 +70,7 @@ async def run_migrations_online():
     """
     from app.db.config import get_db
 
-    connectable: AsyncEngine = await get_db(DATABASE_URL)
+    connectable: AsyncEngine = await get_db(SETTINGS)
 
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
