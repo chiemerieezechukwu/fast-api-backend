@@ -12,7 +12,8 @@ class UsersRepository(BaseRepository):
     async def get_user_by_email(self, *, email: str) -> User:
         q = self.select(User).where(User.email == email)
         result: Result = await self.async_session.execute(q)
-        user = result.scalars().first()
+        # TODO: Check the exception type
+        user = result.scalars().one_or_none()
 
         if user:
             return user
