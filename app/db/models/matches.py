@@ -13,8 +13,6 @@ class Match(BaseModelOrm, DateTimeModelMixin):
     tournament_id = Column(UUID(as_uuid=True), ForeignKey("tournaments.id"), nullable=True)
 
     scores = relationship("Score", backref="match", lazy="dynamic")
-
-    # indicates that both players accepted the scores
     confirmations = relationship("MatchConfirmation", backref="match", lazy="dynamic")
 
     def __repr__(self) -> str:
