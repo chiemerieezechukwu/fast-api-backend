@@ -13,6 +13,8 @@ class User(BaseModelOrm, DateTimeModelMixin):
     full_name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True)
     username = Column(String, unique=True, index=True)
+    image = Column(String, default="default.png")
+    bio = Column(String, default="")
     is_active = Column(Boolean, default=False)
 
     scores = relationship("Score", backref="scorer", lazy="dynamic")
