@@ -25,3 +25,6 @@ db-stop:
 
 db-shell:
 	docker exec -it pgdb psql -U postgres
+
+db-migrate-dev:
+	APP_ENV=dev alembic upgrade head

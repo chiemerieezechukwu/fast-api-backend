@@ -1,14 +1,7 @@
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
-from sqlalchemy.orm import DeclarativeMeta, declarative_base
 
 from app.core.settings.app import AppSettings
-
-Base: DeclarativeMeta = declarative_base()
-
-
-class BaseModelOrm(Base):
-    __abstract__ = True
 
 
 async def ping_db(db: AsyncEngine) -> None:
