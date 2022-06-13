@@ -10,7 +10,7 @@ class MatchConfirmation(BaseModelOrm, DateTimeModelMixin):
 
     is_confirmed = Column(Boolean)
     match_id = Column(UUID(as_uuid=True), ForeignKey("matches.id"), nullable=False)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    player_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
 
     def __repr__(self) -> str:
         return "<MatchConfirmation %s>" % self.id
