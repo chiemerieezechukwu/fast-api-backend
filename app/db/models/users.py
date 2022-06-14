@@ -19,6 +19,7 @@ class User(BaseModelOrm, DateTimeModelMixin):
 
     scores = relationship("Score", backref="scorer", lazy="dynamic")
     tournaments_created = relationship("Tournament", backref="creator", lazy="dynamic")
+    matches_created = relationship("Match", backref="creator", lazy="dynamic")
     match_confirmations = relationship("MatchConfirmation", backref="confirmed_by", lazy="dynamic")
     matches = relationship(
         "Match",
