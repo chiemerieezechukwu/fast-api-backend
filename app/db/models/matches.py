@@ -11,6 +11,7 @@ class Match(BaseModelOrm, DateTimeModelMixin):
 
     # determines that a match is part of a tournament if not null
     tournament_id = Column(UUID(as_uuid=True), ForeignKey("tournaments.id"), nullable=True)
+    match_creator_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
 
     scores = relationship("Score", backref="match", lazy="dynamic")
     confirmations = relationship("MatchConfirmation", backref="match", lazy="dynamic")
