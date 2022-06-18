@@ -10,6 +10,7 @@ class Match(BaseModelOrm, DateTimeModelMixin):
     __tablename__ = "matches"
 
     pending_confirmation = Column(Boolean)
+    confirmed = Column(Boolean)
 
     # determines that a match is part of a tournament if not null
     tournament_id = Column(UUID(as_uuid=True), ForeignKey("tournaments.id"), nullable=True)
