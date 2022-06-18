@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey
+from sqlalchemy import Boolean, Column, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -8,6 +8,8 @@ from app.db.models.common import DateTimeModelMixin
 
 class Match(BaseModelOrm, DateTimeModelMixin):
     __tablename__ = "matches"
+
+    pending_confirmation = Column(Boolean)
 
     # determines that a match is part of a tournament if not null
     tournament_id = Column(UUID(as_uuid=True), ForeignKey("tournaments.id"), nullable=True)
