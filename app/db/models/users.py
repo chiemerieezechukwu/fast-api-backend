@@ -13,10 +13,13 @@ class User(BaseModelOrm, DateTimeModelMixin):
     full_name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True)
     username = Column(String, unique=True, index=True)
+    image = Column(String, default="default.png")
+    bio = Column(String, default="")
     is_active = Column(Boolean, default=False)
 
     scores = relationship("Score", backref="scorer", lazy="dynamic")
     tournaments_created = relationship("Tournament", backref="creator", lazy="dynamic")
+    matches_created = relationship("Match", backref="creator", lazy="dynamic")
     match_confirmations = relationship("MatchConfirmation", backref="confirmed_by", lazy="dynamic")
     matches = relationship(
         "Match",
