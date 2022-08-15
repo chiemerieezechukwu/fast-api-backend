@@ -28,3 +28,17 @@ db-shell:
 
 db-migrate-dev:
 	APP_ENV=dev alembic upgrade head
+
+db-run-test:
+	docker run \
+		--rm \
+		--name pgdb-test \
+		--env-file test.env \
+		-p 5433:5432 \
+		-d postgres:14.0-alpine
+
+check-db:
+	while ! nc -z localhost 5433; do sleep 0.1; done
+
+run-test:
+	pytest
