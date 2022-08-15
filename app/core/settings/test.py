@@ -15,3 +15,6 @@ class TestAppSettings(AppSettings):
     allowed_hosts: list[str] = ["*"]
 
     logging_level: int = logging.DEBUG
+
+    class Config(AppSettings.Config):
+        env_file = "test.env"

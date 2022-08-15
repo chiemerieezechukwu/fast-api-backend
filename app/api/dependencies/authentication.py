@@ -25,8 +25,7 @@ def _get_jwks() -> JWKS:
     with urllib.request.urlopen(keys_url) as f:
         response = f.read()
         keys = json.loads(response.decode("utf-8"))
-
-    logger.debug("Successfully retrieved JWKS")
+    logger.debug("Successfully retrieved and cached JWKS")
     return JWKS(**keys)
 
 

@@ -1,3 +1,6 @@
+from typing import Optional
+
+from sqlalchemy import select
 from sqlalchemy.engine.result import Result
 
 from app.db.errors import EntityDoesNotExist
@@ -6,11 +9,8 @@ from app.db.repositories.base import BaseRepository
 
 
 class UsersRepository(BaseRepository):
-    async def get_user_by_id(self, *, id: int) -> User:
-        return await self.async_session.get(User, id)
-
     async def get_user_by_email(self, *, email: str) -> User:
-        q = self.select(User).where(User.email == email)
+        q = select(User).where(User.email == email)
         result: Result = await self.async_session.execute(q)
         # TODO: Check the exception type
         user = result.scalars().one_or_none()
@@ -34,5 +34,19 @@ class UsersRepository(BaseRepository):
         await self.async_session.commit()
         return user
 
-    async def update_user(self, id, data):
-        pass
+    async def update_user(
+        self,
+        *,
+        user: User,
+        username: Optional[str] = None,
+        bio: Optional[str] = None,
+        email: Optional[str] = None,
+        image: Optional[str] = None,
+    ) -> User:
+        user.username = username or user.username
+        user.email = email or user.email
+        user.image = image or user.image
+        user.bio = bio or user.bio
+
+        await self.async_session.commit()
+        return user
