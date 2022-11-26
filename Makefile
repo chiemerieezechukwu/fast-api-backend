@@ -38,7 +38,7 @@ db-run-test:
 		-d postgres:14.0-alpine
 
 check-db:
-	while ! nc -z localhost 5433; do sleep 0.1; done
+	while ! nc -z localhost 5432; do sleep 0.1; done
 
 run-test:
 	pytest
