@@ -1,0 +1,2 @@
+sqlalchemy2-stubs==0.0.2a31
+pre-commit==2.21.0

@@ -10,6 +10,7 @@ class UserFactory(factory.Factory):
         model = User
 
     full_name = factory.LazyAttribute(lambda _: f"{faker.unique.first_name()} {faker.unique.last_name()}")
-    email = factory.LazyAttribute(lambda _: faker.unique.email())
     username = factory.LazyAttribute(lambda _: faker.unique.user_name())
-    bio = factory.LazyAttribute(lambda _: faker.sentence(nb_words=10))
+    email = factory.LazyAttribute(
+        lambda self: f"{self.full_name.lower().replace(' ', '.')}{faker.unique.random_int()}@testmail.com"
+    )
