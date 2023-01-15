@@ -3,20 +3,19 @@ import os
 from copy import deepcopy
 from typing import Generator
 from unittest.mock import patch
-from sqlalchemy import select
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.db.models import BaseModelOrm
 
 import boto3
 import factory
 import pytest
 from fastapi import FastAPI
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from moto import mock_cognitoidp
 from pytest_factoryboy import register
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
 
+from app.db.models import BaseModelOrm
 from tests.factories.user_factory import UserFactory
 from tests.fake_urlopen import FakeUrlOpen
 

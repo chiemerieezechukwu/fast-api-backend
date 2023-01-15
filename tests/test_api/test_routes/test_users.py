@@ -3,8 +3,8 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
-from sqlalchemy import select
 from moto import mock_cognitoidp
+from sqlalchemy import select
 
 from app.db.models import User
 from tests.factories.user_factory import UserFactory
@@ -86,4 +86,3 @@ async def test_try(userpool_user, db_session):
 
     # assert the user is the same
     assert user.email == user_data["email"]
-
