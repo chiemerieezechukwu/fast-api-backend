@@ -1,10 +1,12 @@
 import asyncio
 import os
 from copy import deepcopy
+from typing import Generator
 from unittest.mock import patch
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.db.models import BaseModelOrm
 
 import boto3
 import factory
@@ -15,7 +17,6 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from moto import mock_cognitoidp
 from pytest_factoryboy import register
 
-from app.db.models import User
 from tests.factories.user_factory import UserFactory
 from tests.fake_urlopen import FakeUrlOpen
 
@@ -23,118 +24,114 @@ register(UserFactory)
 
 os.environ["APP_ENV"] = "test"
 os.environ["userpool__region"] = "eu-central-1"
+os.environ["AWS_ACCESS_KEY_ID"] = "test"
+os.environ["AWS_SECRET_ACCESS_KEY"] = "test"
 
 
-@pytest.fixture
-def apply_migrations(postgresql, cognito_user, enable_network):
+@pytest.fixture(scope="session")
+def event_loop(request) -> Generator:
+    """Create an instance of the default event loop for each test case."""
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
 
-    import alembic
-    from alembic.config import Config
 
-    pg = postgresql.info
-
-    os.environ["DATABASE_URL"] = f"postgresql+asyncpg://{pg.user}:{pg.password}@{pg.host}:{pg.port}/{pg.dbname}"
-
-    config = Config("alembic.ini")
-
-    alembic.command.upgrade(config, "head")
-    yield
-    alembic.command.downgrade(config, "base")
+@pytest.fixture(scope="session")
+def cognito_client():
+    cognito_client = boto3.client("cognito-idp")
+    return cognito_client
 
 
 @pytest.fixture(scope="session")
 @mock_cognitoidp
-def cognito_user():
-    cognito_client = boto3.client("cognito-idp")
-    fake_user_pool = cognito_client.create_user_pool(PoolName="test_pool")
+def userpool_user(cognito_client) -> dict:
+    userpool = cognito_client.create_user_pool(PoolName="test_pool")
 
-    fake_user_pool_client = cognito_client.create_user_pool_client(
-        UserPoolId=fake_user_pool["UserPool"]["Id"],
+    userpool_client = cognito_client.create_user_pool_client(
+        UserPoolId=userpool["UserPool"]["Id"],
         ClientName="test_client",
         ExplicitAuthFlows=["ALLOW_ADMIN_USER_PASSWORD_AUTH", "ALLOW_USER_PASSWORD_AUTH", "ALLOW_REFRESH_TOKEN_AUTH"],
-        ReadAttributes=["full_name", "bio", "username", "email_verified", "cognito:username", "iat"],
+        ReadAttributes=["full_name", "bio", "username", "email_verified", "cognito:username", "iat", "email"],
     )
 
-    # return fake_user_pool, fake_user_pool_client, cognito_client
-
-    def _prepare_user_attributes(user_data: dict) -> list:
-        user_data_copy = deepcopy(user_data)
-        user_data_copy.update(
-            {
-                "email_verified": "True",
-                "cognito:username": user_data_copy["username"],
-                "iat": "1588888888",
-            }
-        )
-
-        return [{"Name": key, "Value": value} for key, value in user_data_copy.items()]
-
-    user_data = factory.build(dict, FACTORY_CLASS=UserFactory)
-
-    app_client_id = fake_user_pool_client["UserPoolClient"]["ClientId"]
-    userpool_id = fake_user_pool["UserPool"]["Id"]
+    userpool_client_id = userpool_client["UserPoolClient"]["ClientId"]
+    userpool_id = userpool_client["UserPoolClient"]["UserPoolId"]
 
     os.environ["userpool__userpool_id"] = userpool_id
-    os.environ["userpool__app_client_id"] = app_client_id
+    os.environ["userpool__app_client_id"] = userpool_client_id
+
+    user_data: dict = factory.build(dict, FACTORY_CLASS=UserFactory)
+    user_data_extended = {
+        **user_data,
+        "email_verified": "True",
+        "cognito:username": user_data["username"],
+        "iat": "123456789",
+    }
 
     cognito_client.sign_up(
-        ClientId=app_client_id,
-        Username=user_data["username"],
+        ClientId=userpool_client_id,
+        Username=user_data_extended["username"],
         Password="test_P4ssword",
-        UserAttributes=_prepare_user_attributes(user_data),
+        UserAttributes=[{"Name": key, "Value": value} for key, value in user_data_extended.items()],
     )
 
-    cognito_client.admin_confirm_sign_up(
-        UserPoolId=userpool_id,
-        Username=user_data["username"],
-    )
+    cognito_client.admin_confirm_sign_up(UserPoolId=userpool_id, Username=user_data_extended["username"])
 
     user_auth = cognito_client.initiate_auth(
-        ClientId=app_client_id,
+        ClientId=userpool_client_id,
         AuthFlow="USER_PASSWORD_AUTH",
-        AuthParameters={
-            "USERNAME": user_data["username"],
-            "PASSWORD": "test_P4ssword",
-        },
+        AuthParameters={"USERNAME": user_data_extended["username"], "PASSWORD": "test_P4ssword"},
     )
 
-    return user_data, user_auth["AuthenticationResult"]
+    return {"user_data": user_data, "user_auth": user_auth["AuthenticationResult"]}
 
 
 @pytest.fixture
 @mock_cognitoidp
-def app(apply_migrations) -> FastAPI:
+def app(override_get_session, userpool_user) -> FastAPI:
     import requests
 
     jwk_url = "https://cognito-idp.fake_region.amazonaws.com/fake_userpool_id/.well-known/jwks.json"
     fake_jwk_response = requests.get(jwk_url).json()
 
     with patch("urllib.request.urlopen", return_value=FakeUrlOpen(return_value=fake_jwk_response)):
+        from app.api.dependencies.database import _get_session
         from app.main import get_application
 
         app = get_application()
-        engine: AsyncEngine = create_async_engine(os.getenv("DATABASE_URL"), future=True)
-        app.state.db = engine
+        app.dependency_overrides[_get_session] = override_get_session
 
         return app
 
 
 @pytest.fixture
-def db_session(enable_network, app: FastAPI) -> AsyncSession:
-    engine: AsyncEngine = app.state.db
-    async_session = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=True, future=True)
+async def db_session(enable_network, postgresql) -> AsyncSession:
+    pg = postgresql.info
+    db_url = f"postgresql+asyncpg://{pg.user}:{pg.password}@{pg.host}:{pg.port}/{pg.dbname}"
+    os.environ["DATABASE_URL"] = db_url
 
-    return async_session()
+    engine: AsyncEngine = create_async_engine(db_url, future=True)
+    async_session = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False, future=True)
+    async with engine.begin() as conn:
+        await conn.run_sync(BaseModelOrm.metadata.drop_all)
+        await conn.run_sync(BaseModelOrm.metadata.create_all)
+        async with async_session(bind=conn) as session:
+
+            yield session
+
+            await session.flush()
+            await session.rollback()
 
 
 @pytest.fixture
-async def unauthorized_client(app: FastAPI) -> AsyncClient:
+def override_get_session(db_session: AsyncSession):
+    async def _override_get_session():
+        yield db_session
+
+    return _override_get_session
+
+
+@pytest.fixture
+async def async_client(app: FastAPI) -> AsyncClient:
     async with AsyncClient(app=app, base_url="http://testserver") as client:
         yield client
-
-
-@pytest.fixture
-def authorized_client(unauthorized_client, cognito_user):
-    id_token = cognito_user[1]["IdToken"]
-    unauthorized_client.headers = {"Authorization": f"Bearer {id_token}"}
-    yield unauthorized_client
