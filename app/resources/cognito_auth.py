@@ -27,7 +27,7 @@ class CognitoBearer(HTTPBearer):
             auth: HTTPAuthorizationCredentials = await super().__call__(request)
         except HTTPException as original_auth_exc:
             raise HTTPException(
-                status_code=original_auth_exc.status_code,
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=original_auth_exc.detail,
                 headers={"WWW-Authenticate": "Bearer"},
             )
@@ -39,7 +39,7 @@ class CognitoBearer(HTTPBearer):
             claims = jwt.get_unverified_claims(token)
         except JWTError:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=strings.INVALID_TOKEN,
                 headers={"WWW-Authenticate": "Bearer"},
             )
@@ -55,7 +55,7 @@ class CognitoBearer(HTTPBearer):
 
         if not self._verify_token(cognito_auth):
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=strings.INVALID_TOKEN,
                 headers={"WWW-Authenticate": "Bearer"},
             )
@@ -68,7 +68,7 @@ class CognitoBearer(HTTPBearer):
         except KeyError:
             logger.error(f"JWK key with kid {kid} not found")
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=strings.INVALID_TOKEN,
                 headers={"WWW-Authenticate": "Bearer"},
             )

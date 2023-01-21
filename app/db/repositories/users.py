@@ -38,11 +38,13 @@ class UsersRepository(BaseRepository):
         self,
         *,
         user: User,
+        full_name: Optional[str] = None,
         username: Optional[str] = None,
         bio: Optional[str] = None,
         email: Optional[str] = None,
         image: Optional[str] = None,
     ) -> User:
+        user.full_name = full_name or user.full_name
         user.username = username or user.username
         user.email = email or user.email
         user.image = image or user.image
