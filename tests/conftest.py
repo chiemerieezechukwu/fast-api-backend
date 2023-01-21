@@ -1,7 +1,4 @@
-import asyncio
 import os
-from copy import deepcopy
-from typing import Generator
 from unittest.mock import patch
 
 import boto3
@@ -11,11 +8,10 @@ from fastapi import FastAPI
 from httpx import AsyncClient
 from moto import mock_cognitoidp
 from pytest_factoryboy import register
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.db.models import BaseModelOrm
+from app.db.models import BaseModelOrm, User
 from tests.factories.user_factory import UserFactory
 from tests.fake_urlopen import FakeUrlOpen
 
@@ -25,14 +21,6 @@ os.environ["APP_ENV"] = "test"
 os.environ["userpool__region"] = "eu-central-1"
 os.environ["AWS_ACCESS_KEY_ID"] = "test"
 os.environ["AWS_SECRET_ACCESS_KEY"] = "test"
-
-
-@pytest.fixture(scope="session")
-def event_loop(request) -> Generator:
-    """Create an instance of the default event loop for each test case."""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
 
 
 @pytest.fixture(scope="session")
@@ -86,8 +74,18 @@ def userpool_user(cognito_client) -> dict:
 
 
 @pytest.fixture
+async def current_user(userpool_user, db_session) -> dict:
+    user_data = userpool_user["user_data"]
+    user = User(**user_data)
+    db_session.add(user)
+    await db_session.commit()
+
+    return {"user": user, "auth": userpool_user["user_auth"]}
+
+
+@pytest.fixture
 @mock_cognitoidp
-def app(override_get_session, userpool_user) -> FastAPI:
+def app(override_get_session, current_user) -> FastAPI:
     import requests
 
     jwk_url = "https://cognito-idp.fake_region.amazonaws.com/fake_userpool_id/.well-known/jwks.json"
@@ -132,5 +130,5 @@ def override_get_session(db_session: AsyncSession):
 
 @pytest.fixture
 async def async_client(app: FastAPI) -> AsyncClient:
-    async with AsyncClient(app=app, base_url="http://testserver") as client:
-        yield client
+    async with AsyncClient(app=app, base_url="http://testserver") as async_client:
+        yield async_client
