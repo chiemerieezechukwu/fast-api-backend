@@ -1,5 +1,8 @@
 [run]
 branch = true
+concurrency =
+    greenlet
+    thread
 source = app
 omit =
     */venv/*
