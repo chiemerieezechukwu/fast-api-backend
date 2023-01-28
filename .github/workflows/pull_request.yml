@@ -22,6 +22,7 @@ jobs:
       - name: Run tests
         run: pytest
       - name: Comment coverage on PR
+        if: always()
         uses: orgoro/coverage@v3
         with:
           coverageFile: coverage.xml
@@ -29,3 +30,8 @@ jobs:
           thresholdAll: 0.8
           thresholdNew: 0.8
           thresholdModified: 0.8
+      - name: Pytest coverage comment
+        if: always()
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          pytest-xml-coverage-path: coverage.xml
