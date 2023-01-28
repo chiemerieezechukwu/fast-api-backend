@@ -18,9 +18,9 @@ from tests.fake_urlopen import FakeUrlOpen
 register(UserFactory)
 
 os.environ["APP_ENV"] = "test"
-os.environ["userpool__region"] = "eu-central-1"
 os.environ["AWS_ACCESS_KEY_ID"] = "test"
 os.environ["AWS_SECRET_ACCESS_KEY"] = "test"
+os.environ["AWS_DEFAULT_REGION"] = os.environ["userpool__region"] = "eu-central-1"
 
 
 @pytest.fixture(scope="session")
