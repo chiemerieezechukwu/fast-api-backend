@@ -30,8 +30,3 @@ jobs:
           thresholdAll: 0.8
           thresholdNew: 0.8
           thresholdModified: 0.8
-      - name: Pytest coverage comment
-        if: always()
-        uses: MishaKav/pytest-coverage-comment@main
-        with:
-          pytest-xml-coverage-path: coverage.xml
