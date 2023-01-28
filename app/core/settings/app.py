@@ -10,6 +10,7 @@ from app.core.settings.base import BaseAppSettings, UserpoolSettings
 
 class AppSettings(BaseAppSettings):
     debug: bool = False
+    db_engine_echo: bool = False
     docs_url: str = "/docs"
     openapi_prefix: str = ""
     openapi_url: str = "/openapi.json"

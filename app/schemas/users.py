@@ -1,21 +1,24 @@
 from typing import Optional
 
-from pydantic import EmailStr, HttpUrl
+from pydantic import EmailStr
 
 from app.schemas.rwschema import RWSchema
 
 
-class UserInLogin(RWSchema):
+class UserInCreate(RWSchema):
+    full_name: str
+    username: str
     email: EmailStr
 
 
-class UserInCreate(UserInLogin):
-    full_name: str
-    username: str
+class UserInResponse(UserInCreate):
+    bio: str = ""
+    image: Optional[str]
 
 
-class UserInResponse(RWSchema):
+class UserInUpdate(RWSchema):
+    full_name: Optional[str] = None
     username: Optional[str] = None
     email: Optional[EmailStr] = None
     bio: Optional[str] = None
-    image: Optional[HttpUrl] = None
+    image: Optional[str] = None

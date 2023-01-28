@@ -5,6 +5,7 @@ from app.core.settings.app import AppSettings
 
 class DevAppSettings(AppSettings):
     debug: bool = True
+    db_engine_echo: bool = True
     title: str = "Dev FastAPI application"
     version: str = "Dev version"
 
